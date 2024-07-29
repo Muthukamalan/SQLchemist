@@ -1166,31 +1166,156 @@ SELECT * FROM users OFFSET 40 LIMIT 5;
 SELECT * FROM users OFFSET 40 LIMIT 500; --no error
  
 -- SECTION::8 Union & Intersection With Sets
--- SECTION::9 # TODO: 26-07-24
--- SECTION::10# TODO: 29-07-24
--- SECTION::11# TODO: 29-07-24
--- SECTION::12# TODO: 29-07-24
--- SECTION::13
--- SECTION::14
--- SECTION::15
--- SECTION::16
--- SECTION::17
--- SECTION::18
--- SECTION::19
--- SECTION::20
--- SECTION::21
--- SECTION::22
--- SECTION::23
--- SECTION::24
--- SECTION::25
--- SECTION::26
--- SECTION::27
--- SECTION::28
--- SECTION::29
--- SECTION::30
--- SECTION::31
--- SECTION::32
--- SECTION::33
--- SECTION::34
--- SECTION::35
--- SECTION::36
+-- Find the 4 products with the highest price and 4 products with the highest price/weight ratio
+( select * from products order by price desc limit 4 )
+UNION
+( select * from products order by price/weight desc limit 4 );
+
+( select * from products order by price desc limit 4 )
+UNION ALL
+( select * from products order by price/weight desc limit 4 );
+
+( select * from products order by price desc limit 4 )
+INTERSECT 
+( select * from products order by price/weight desc limit 4 );
+
+( select * from products order by price desc limit 4 )
+INTERSECT ALL
+( select * from products order by price/weight desc limit 4 );
+
+
+-- returns only from left side only
+( select * from products order by price desc limit 4 )
+EXCEPT
+( select * from products order by price/weight desc limit 4 );
+
+( select * from products order by price desc limit 4 )
+EXCEPT ALL
+( select * from products order by price/weight desc limit 4 );
+
+
+-- SECTION::9  SUBQuery
+
+SELECT 'name',price FROM products WHERE price>(
+	SELECT MAX(price) FROM products WHERE department='Toys'
+)
+
+-- it can we used many location (sample)
+SELECT p1.name,(SELECT COUNT("name") FROM products)
+FROM (SELECT * FROM products) as p1
+JOIN (SELECT * FROM products) as p2 on p1.id=p2.id
+WHERE p1.id IN (select "id" from products) 
+
+
+SELECT * FROM orders          -- returns TABLE
+SELECT "id" FROM orders		   -- returns SERIES
+SELECT COUNT("id") FROM orders -- returns scaler
+
+-- usage of subquery in select 
+select name,price,price/(select max(price) from products) from products
+
+-- usage of subquery in FROM (**PASS ALIAS**)
+-- Find th average number of orders for all users
+SELECT AVG(calls) FROM ( select user_id,count(*) as calls from orders group by user_id )  AS user_avg_calls
+
+-- usage of subquery in JOIN 
+-- usage of subquery in WHERE
+-- show the id of orders that involve a product with a price/weight ratio greater than 5
+select * from orders where "product_id" in (select id from products where price/weight>5)
+
+-- CORRELATED SUBQuery (Nested For-Loop)
+-- Show the name,department and price of the most expensive product in each department
+select name,department,price from products p1 
+where p1.price =(select max(price)  from products p2 where p2.department=p1.department)
+
+-- Print the number of orders for each product
+select * from orders;
+
+select product_id,count(id) from orders group by product_id 
+
+-- SECTION::10 DISTINCT
+-- unique department in products
+select COUNT(DISTINCT department) from products;
+
+-- SECTION::11 CASE
+-- Greatest
+select greatest(200,30,50);
+-- weight either 30 or above
+select name,weight,greatest(30,2*weight) from products;
+select 
+	name,
+	weight,
+	case 
+		when 2*weight<=30 then 30
+		else 2*weight
+	end as "cost_to_ship"
+from products;
+
+select least(200,30,50);
+
+-- SECTION::12 Installation 
+-- SECTION::13 Complex Datatype
+
+select (1) as col;
+
+-- NORMAL
+select (1.::INTEGER) as col;
+select (.15656564::SMALLINT) as col;
+select (1.::NUMERIC) as col;
+select (1.::BIGINT) as col;
+
+-- better for calc
+select (1.::DECIMAL) as col;
+select (1.999999999::REAL) as col;
+select (1.99999999::FLOAT) as col;
+
+
+select ('Hello'::CHAR(5));
+select ('Hello, there'::VARCHAR);
+select ('Hello, there'::VARCHAR(5));
+select ('Hello,there'::TEXT)
+
+
+select ('true'::BOOLEAN)
+select ('false'::BOOLEAN)
+select ('yes'::BOOLEAN)
+select ('no'::BOOLEAN)
+select (1::BOOLEAN)
+select (0::BOOLEAN)
+select (null::BOOLEAN)
+
+select '2024-05-01'::DATE;
+select 'NOV-20-1984'::DATE;
+select '20 NOV, 1984'::DATE;
+
+select '1:23 PM'::TIME WITHOUT TIME ZONE;
+select '1:23 PM'::TIME; --utc
+select '1:23 PM IST'::TIME; --utc
+select '20 NOV, 1984 1:23 PM IST'::TIMESTAMP WITH TIME ZONE;
+select '20 minutes'::INTERVAL;
+select '20 NOV, 1984 1:23 PM IST'::TIMESTAMP WITH TIME ZONE + '+3 days'::INTERVAL;
+
+
+-- SECTION::14# TODO: 30-07-24
+-- SECTION::15# TODO: 31-07-24
+-- SECTION::16# TODO: 31-07-24
+-- SECTION::17# TODO: 31-07-24
+-- SECTION::18# TODO: 1-08-24
+-- SECTION::19# TODO: 1-08-24
+-- SECTION::20# TODO: 1-08-24
+-- SECTION::21# TODO: 2
+-- SECTION::22# TODO: 2
+-- SECTION::23# TODO: 3
+-- SECTION::24# TODO: 4
+-- SECTION::25# TODO: 4
+-- SECTION::26# TODO: 5
+-- SECTION::27# TODO: 5 
+-- SECTION::28# TODO: 5
+-- SECTION::29# TODO: 6
+-- SECTION::30# TODO: 6
+-- SECTION::31# TODO: 7
+-- SECTION::32# TODO: 8
+-- SECTION::33# TODO: 9 
+-- SECTION::34# TODO: 10
+-- SECTION::35# TODO: 10
+-- SECTION::36# TODO: 10
