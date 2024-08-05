@@ -1296,7 +1296,66 @@ select '20 minutes'::INTERVAL;
 select '20 NOV, 1984 1:23 PM IST'::TIMESTAMP WITH TIME ZONE + '+3 days'::INTERVAL;
 
 
--- SECTION::14# TODO: 30-07-24
+-- SECTION::14 
+DROP TABLE IF EXISTS products cascade;
+CREATE TABLE products(
+	product_id SERIAL PRIMARY KEY,
+	product_name VARCHAR(50) NOT NULL UNIQUE,
+	department VARCHAR(50),
+	price INTEGER  NOT NULL CHECK(price>0),
+	weight INTEGER DEFAULT 0
+);
+
+-- since column already has NULL is won't work
+INSERT INTO products ( product_name, department,  weight ) VALUES ('FAN','Home Appliances',2);
+
+ALTER TABLE products ALTER COLUMN price SET NOT NULL;
+
+UPDATE products SET price=0 WHERE price IS NULL;
+
+INSERT INTO products ( product_name, department, price, weight ) VALUES ('Tv','Home Appliances',32000,2);
+
+INSERT INTO products ( product_name, department,  weight ) VALUES ('FAN','Home Appliances',2);
+-- table must have Values `NOT NULL will be default`
+
+select * from products;
+
+-- ADD CONSTRAINTS
+ALTER TABLE products ADD UNIQUE (product_name,department);
+-- DROP CONSTRAINTS
+ALTER TABLE products DROP CONSTRAINT products_product_name_department_key; 
+
+
+-- < , > , <= , <>, >=
+ALTER TABLE products ADD CHECK(price>0);
+INSERT INTO products ( product_name, department, price, weight ) VALUES ('Washin Machine','Home Appliances',-1,2);
+
+
+
+DROP TABLE IF EXISTS orders CASCADE;
+CREATE TABLE orders (
+	id SERIAL PRIMARY KEY,
+	name VARCHAR(50) NOT NULL,
+	created_at TIMESTAMP NOT NULL,
+	eta_delivery TIMESTAMP NOT NULL,
+	CHECK(eta_delivery>created_at)
+)
+
+INSERT INTO orders (name,created_at,eta_delivery) VALUES (
+	'Shirts', '2023-Nov-20 01:00AM' ,'2024-Nov-20 01:00AM' 
+)
+
+CREATE TABLE cars (
+	id SERIAL PRIMARY KEY,
+	name VARCHAR(20),
+	color VARCHAR(20) CHECK (color IN ('red', 'green', 'blue'))
+);
+
+INSERT INTO cars (name, color) VALUES ('Mustang', 'red');
+select * from cars;
+
+
+
 -- SECTION::15# TODO: 31-07-24
 -- SECTION::16# TODO: 31-07-24
 -- SECTION::17# TODO: 31-07-24
